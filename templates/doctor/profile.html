@@ -1,0 +1,400 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Doctor Profile - Doctor Appointment System</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+        
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: #f4f4f4;
+        }
+        
+        .navbar {
+            background: white;
+            padding: 1rem 2rem;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+        
+        .logo {
+            font-size: 1.5rem;
+            font-weight: bold;
+            color: #667eea;
+        }
+        
+        .nav-links a {
+            margin-left: 1.5rem;
+            text-decoration: none;
+            color: #333;
+            transition: color 0.3s;
+        }
+        
+        .nav-links a:hover {
+            color: #667eea;
+        }
+        
+        .container {
+            max-width: 1000px;
+            margin: 2rem auto;
+            padding: 0 2rem;
+        }
+        
+        .card {
+            background: white;
+            border-radius: 10px;
+            padding: 2rem;
+            margin-bottom: 2rem;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+        }
+        
+        h2 {
+            color: #333;
+            margin-bottom: 1.5rem;
+        }
+        
+        .profile-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 2rem;
+            padding-bottom: 1rem;
+            border-bottom: 2px solid #f0f0f0;
+        }
+        
+        .profile-info {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+            gap: 1.5rem;
+            margin-bottom: 2rem;
+        }
+        
+        .info-group {
+            background: #f8f9fa;
+            padding: 1rem;
+            border-radius: 8px;
+        }
+        
+        .info-label {
+            font-weight: 500;
+            color: #666;
+            margin-bottom: 0.5rem;
+        }
+        
+        .info-value {
+            color: #333;
+            font-size: 1.1rem;
+        }
+        
+        .rating {
+            font-size: 1.5rem;
+            color: #fbbf24;
+            margin-top: 0.5rem;
+        }
+        
+        .form-group {
+            margin-bottom: 1.5rem;
+        }
+        
+        label {
+            display: block;
+            margin-bottom: 0.5rem;
+            color: #666;
+            font-weight: 500;
+        }
+        
+        input, textarea {
+            width: 100%;
+            padding: 10px;
+            border: 1px solid #ddd;
+            border-radius: 5px;
+            font-size: 16px;
+        }
+        
+        textarea {
+            resize: vertical;
+            min-height: 100px;
+        }
+        
+        button {
+            padding: 10px 20px;
+            background: #667eea;
+            color: white;
+            border: none;
+            border-radius: 5px;
+            cursor: pointer;
+            font-size: 16px;
+            transition: background 0.3s;
+        }
+        
+        button:hover {
+            background: #5a67d8;
+        }
+        
+        .review-card {
+            border: 1px solid #e0e0e0;
+            border-radius: 8px;
+            padding: 1rem;
+            margin-bottom: 1rem;
+        }
+        
+        .review-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 0.5rem;
+        }
+        
+        .reviewer-name {
+            font-weight: bold;
+            color: #333;
+        }
+        
+        .review-rating {
+            color: #fbbf24;
+        }
+        
+        .review-date {
+            color: #999;
+            font-size: 0.85rem;
+        }
+        
+        .review-comment {
+            color: #666;
+            margin-top: 0.5rem;
+        }
+        
+        .empty-state {
+            text-align: center;
+            padding: 2rem;
+            color: #999;
+        }
+        
+        .flash-messages {
+            position: fixed;
+            top: 20px;
+            right: 20px;
+            z-index: 1000;
+        }
+        
+        .flash {
+            padding: 10px 20px;
+            margin-bottom: 10px;
+            border-radius: 5px;
+            animation: slideIn 0.3s ease-out;
+        }
+        
+        .flash.success {
+            background: #d4edda;
+            color: #155724;
+            border: 1px solid #c3e6cb;
+        }
+        
+        .flash.error {
+            background: #f8d7da;
+            color: #721c24;
+            border: 1px solid #f5c6cb;
+        }
+        
+        @keyframes slideIn {
+            from {
+                transform: translateX(100%);
+                opacity: 0;
+            }
+            to {
+                transform: translateX(0);
+                opacity: 1;
+            }
+        }
+        
+        .edit-toggle {
+            cursor: pointer;
+            color: #667eea;
+            text-decoration: none;
+        }
+    </style>
+</head>
+<body>
+    <nav class="navbar">
+        <div class="logo">Clinic Appointment</div>
+        <div class="nav-links">
+            <a href="/doctor/dashboard">Dashboard</a>
+            <a href="/doctor/manage_slots">Manage Slots</a>
+            <a href="/doctor/appointments">Appointments</a>
+            <a href="/doctor/profile">Profile</a>
+            <a href="/logout">Logout</a>
+        </div>
+    </nav>
+    
+    <div class="flash-messages">
+        {% with messages = get_flashed_messages(with_categories=true) %}
+            {% if messages %}
+                {% for category, message in messages %}
+                    <div class="flash {{ category }}">{{ message }}</div>
+                {% endfor %}
+            {% endif %}
+        {% endwith %}
+    </div>
+    
+    <div class="container">
+        <div class="card">
+            <div class="profile-header">
+                <h2>Doctor Profile</h2>
+                <a href="#" onclick="toggleEdit()" class="edit-toggle">Edit Profile</a>
+            </div>
+            
+            <div id="viewMode">
+                <div class="profile-info">
+                    <div class="info-group">
+                        <div class="info-label">Full Name</div>
+                        <div class="info-value">Dr. {{ doctor.name }}</div>
+                    </div>
+                    <div class="info-group">
+                        <div class="info-label">Email</div>
+                        <div class="info-value">{{ doctor.email }}</div>
+                    </div>
+                    <div class="info-group">
+                        <div class="info-label">Phone</div>
+                        <div class="info-value">{{ doctor.phone or 'Not provided' }}</div>
+                    </div>
+                    <div class="info-group">
+                        <div class="info-label">Specialization</div>
+                        <div class="info-value">{{ doctor.specialization or 'General Physician' }}</div>
+                    </div>
+                    <div class="info-group">
+                        <div class="info-label">Qualification</div>
+                        <div class="info-value">{{ doctor.qualification or 'Not provided' }}</div>
+                    </div>
+                    <div class="info-group">
+                        <div class="info-label">Experience</div>
+                        <div class="info-value">{{ doctor.experience_years or 0 }} years</div>
+                    </div>
+                    <div class="info-group">
+                        <div class="info-label">Consultation Fee</div>
+                        <div class="info-value">₹{{ doctor.consultation_fee or 500 }}</div>
+                    </div>
+                    <div class="info-group">
+                        <div class="info-label">Rating</div>
+                        <div class="info-value">
+                            <div class="rating">
+                                {% if rating and rating.avg_rating %}
+                                    {% for i in range(rating.avg_rating|int) %}★{% endfor %}
+                                    {% if rating.avg_rating % 1 >= 0.5 %}½{% endif %}
+                                    ({{ "%.1f"|format(rating.avg_rating) }})
+                                {% else %}
+                                    No ratings yet
+                                {% endif %}
+                            </div>
+                            <div class="info-value" style="font-size: 0.85rem; margin-top: 0.25rem;">
+                                {{ rating.total_reviews if rating else 0 }} reviews
+                            </div>
+                        </div>
+                    </div>
+                    <div class="info-group">
+                        <div class="info-label">About</div>
+                        <div class="info-value">{{ doctor.about or 'Not provided' }}</div>
+                    </div>
+                </div>
+            </div>
+            
+            <div id="editMode" style="display: none;">
+                <form method="POST">
+                    <div class="form-group">
+                        <label for="name">Full Name</label>
+                        <input type="text" id="name" name="name" value="{{ doctor.name }}">
+                    </div>
+                    
+                    <div class="form-group">
+                        <label for="phone">Phone Number</label>
+                        <input type="tel" id="phone" name="phone" value="{{ doctor.phone or '' }}">
+                    </div>
+                    
+                    <div class="form-group">
+                        <label for="specialization">Specialization</label>
+                        <input type="text" id="specialization" name="specialization" value="{{ doctor.specialization or '' }}">
+                    </div>
+                    
+                    <div class="form-group">
+                        <label for="qualification">Qualification</label>
+                        <input type="text" id="qualification" name="qualification" value="{{ doctor.qualification or '' }}">
+                    </div>
+                    
+                    <div class="form-group">
+                        <label for="experience_years">Experience (Years)</label>
+                        <input type="number" id="experience_years" name="experience_years" value="{{ doctor.experience_years or 0 }}" min="0">
+                    </div>
+                    
+                    <div class="form-group">
+                        <label for="consultation_fee">Consultation Fee (₹)</label>
+                        <input type="number" id="consultation_fee" name="consultation_fee" value="{{ doctor.consultation_fee or 500 }}" min="0">
+                    </div>
+                    
+                    <div class="form-group">
+                        <label for="about">About</label>
+                        <textarea id="about" name="about">{{ doctor.about or '' }}</textarea>
+                    </div>
+                    
+                    <div class="btn-group">
+                        <button type="submit">Save Changes</button>
+                        <button type="button" onclick="toggleEdit()" style="background: #6c757d;">Cancel</button>
+                    </div>
+                </form>
+            </div>
+        </div>
+        
+        <div class="card">
+            <h2>Patient Reviews</h2>
+            {% if reviews %}
+                {% for review in reviews %}
+                <div class="review-card">
+                    <div class="review-header">
+                        <span class="reviewer-name">{{ review.patient_name }}</span>
+                        <span class="review-rating">
+                            {% for i in range(review.rating) %}★{% endfor %}
+                            {% for i in range(5 - review.rating) %}☆{% endfor %}
+                        </span>
+                    </div>
+                    <div class="review-date">{{ review.created_at.strftime('%B %d, %Y') }}</div>
+                    <div class="review-comment">{{ review.comment or 'No comment provided' }}</div>
+                </div>
+                {% endfor %}
+            {% else %}
+                <div class="empty-state">
+                    <p>No reviews yet</p>
+                </div>
+            {% endif %}
+        </div>
+    </div>
+    
+    <script>
+        function toggleEdit() {
+            const viewMode = document.getElementById('viewMode');
+            const editMode = document.getElementById('editMode');
+            
+            if (viewMode.style.display === 'none') {
+                viewMode.style.display = 'block';
+                editMode.style.display = 'none';
+            } else {
+                viewMode.style.display = 'none';
+                editMode.style.display = 'block';
+            }
+        }
+        
+        setTimeout(() => {
+            const flashes = document.querySelectorAll('.flash');
+            flashes.forEach(flash => {
+                flash.style.opacity = '0';
+                setTimeout(() => flash.remove(), 300);
+            });
+        }, 3000);
+    </script>
+</body>
+</html>

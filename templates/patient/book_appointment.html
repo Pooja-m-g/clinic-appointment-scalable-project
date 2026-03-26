@@ -1,0 +1,771 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=yes">
+    <title>Book Appointment · Secure OTP Verification | Clinic Appointment</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        :root {
+            --primary: #2c7da0;
+            --primary-dark: #1f5e7a;
+            --primary-light: #e9f4f9;
+            --accent: #3b9e7c;
+            --accent-light: #e0f2e9;
+            --gray-50: #f9fafb;
+            --gray-100: #f3f4f6;
+            --gray-200: #e5e7eb;
+            --gray-300: #d1d5db;
+            --gray-600: #4b5563;
+            --gray-700: #374151;
+            --gray-800: #1f2937;
+            --white: #ffffff;
+            --shadow-sm: 0 1px 2px 0 rgb(0 0 0 / 0.05);
+            --shadow-md: 0 4px 6px -1px rgb(0 0 0 / 0.1), 0 2px 4px -2px rgb(0 0 0 / 0.05);
+            --shadow-lg: 0 10px 15px -3px rgb(0 0 0 / 0.08), 0 4px 6px -4px rgb(0 0 0 / 0.05);
+            --radius-lg: 1rem;
+            --radius-md: 0.75rem;
+            --radius-sm: 0.5rem;
+        }
+
+        body {
+            font-family: 'Inter', system-ui, -apple-system, 'Segoe UI', Roboto, sans-serif;
+            background: var(--gray-100);
+            color: var(--gray-800);
+            line-height: 1.5;
+        }
+
+        /* Navbar */
+        .navbar {
+            background: var(--white);
+            border-bottom: 1px solid var(--gray-200);
+            padding: 0.9rem 2rem;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            flex-wrap: wrap;
+            gap: 1rem;
+            position: sticky;
+            top: 0;
+            z-index: 50;
+            backdrop-filter: blur(4px);
+        }
+
+        .logo {
+            font-size: 1.6rem;
+            font-weight: 700;
+            background: linear-gradient(135deg, var(--primary) 0%, var(--accent) 100%);
+            background-clip: text;
+            -webkit-background-clip: text;
+            color: transparent;
+        }
+
+        .nav-links {
+            display: flex;
+            gap: 1.8rem;
+            align-items: center;
+            flex-wrap: wrap;
+        }
+
+        .nav-links a {
+            text-decoration: none;
+            color: var(--gray-700);
+            font-weight: 500;
+            font-size: 0.95rem;
+            transition: color 0.2s;
+        }
+
+        .nav-links a:hover {
+            color: var(--primary);
+        }
+
+        .container {
+            max-width: 880px;
+            margin: 2rem auto;
+            padding: 0 1.5rem;
+        }
+
+        /* Cards */
+        .card {
+            background: var(--white);
+            border-radius: var(--radius-lg);
+            box-shadow: var(--shadow-sm);
+            border: 1px solid var(--gray-200);
+            overflow: hidden;
+            transition: box-shadow 0.2s;
+            padding: 2rem;
+        }
+
+        h2 {
+            font-size: 1.8rem;
+            font-weight: 600;
+            color: var(--gray-800);
+            margin-bottom: 0.25rem;
+        }
+
+        .subhead {
+            color: var(--gray-600);
+            margin-bottom: 1.8rem;
+            border-bottom: 1px solid var(--gray-200);
+            padding-bottom: 0.75rem;
+        }
+
+        /* Form groups */
+        .form-group {
+            margin-bottom: 1.5rem;
+        }
+
+        label {
+            display: block;
+            margin-bottom: 0.5rem;
+            font-weight: 500;
+            color: var(--gray-700);
+            font-size: 0.9rem;
+        }
+
+        select, input, textarea {
+            width: 100%;
+            padding: 0.75rem 1rem;
+            border: 1px solid var(--gray-300);
+            border-radius: var(--radius-md);
+            font-size: 0.95rem;
+            background: var(--white);
+            transition: all 0.2s;
+        }
+
+        select:focus, input:focus, textarea:focus {
+            outline: none;
+            border-color: var(--primary);
+            box-shadow: 0 0 0 3px rgba(44,125,160,0.1);
+        }
+
+        textarea {
+            resize: vertical;
+            min-height: 85px;
+        }
+
+        /* Buttons */
+        .btn {
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            gap: 0.5rem;
+            padding: 0.7rem 1.5rem;
+            border-radius: var(--radius-md);
+            font-weight: 500;
+            font-size: 0.9rem;
+            transition: all 0.2s;
+            cursor: pointer;
+            border: 1px solid transparent;
+        }
+
+        .btn-primary {
+            background: var(--primary);
+            color: white;
+            box-shadow: var(--shadow-sm);
+        }
+
+        .btn-primary:hover {
+            background: var(--primary-dark);
+            transform: translateY(-1px);
+        }
+
+        .btn-primary:disabled {
+            background: var(--gray-300);
+            cursor: not-allowed;
+            transform: none;
+        }
+
+        .btn-outline {
+            border-color: var(--gray-300);
+            background: white;
+            color: var(--gray-700);
+        }
+
+        .btn-outline:hover {
+            border-color: var(--primary);
+            color: var(--primary);
+            background: var(--primary-light);
+        }
+
+        .btn-sm {
+            padding: 0.45rem 1rem;
+            font-size: 0.8rem;
+        }
+
+        /* Doctor info card */
+        .doctor-info {
+            background: var(--primary-light);
+            padding: 1rem 1.2rem;
+            border-radius: var(--radius-md);
+            margin-bottom: 1.5rem;
+            border-left: 4px solid var(--primary);
+        }
+
+        .doctor-name {
+            font-size: 1.2rem;
+            font-weight: 700;
+            color: var(--gray-800);
+        }
+
+        .doctor-specialization {
+            color: var(--primary-dark);
+            margin-top: 0.2rem;
+            font-size: 0.9rem;
+        }
+
+        .hidden {
+            display: none;
+        }
+
+        /* Slot list styling */
+        .slot-list {
+            display: grid;
+            gap: 0.75rem;
+            margin-top: 0.5rem;
+        }
+
+        .slot-item {
+            padding: 0.9rem 1rem;
+            border: 1px solid var(--gray-200);
+            border-radius: var(--radius-md);
+            cursor: pointer;
+            transition: all 0.2s;
+            background: var(--white);
+        }
+
+        .slot-item:hover {
+            border-color: var(--primary);
+            background: var(--primary-light);
+            transform: translateX(2px);
+        }
+
+        .slot-item.selected {
+            background: var(--primary);
+            border-color: var(--primary);
+            color: white;
+        }
+
+        .slot-item.selected .slot-info {
+            color: rgba(255,255,255,0.85);
+        }
+
+        .slot-time {
+            font-weight: 700;
+        }
+
+        .slot-info {
+            font-size: 0.8rem;
+            margin-top: 0.25rem;
+            color: var(--gray-600);
+        }
+
+        .loading {
+            text-align: center;
+            padding: 1.5rem;
+            color: var(--gray-600);
+        }
+
+        /* OTP section */
+        .otp-section {
+            background: var(--gray-50);
+            border-radius: var(--radius-md);
+            padding: 1.2rem;
+            margin: 1rem 0 1.5rem;
+            border: 1px solid var(--gray-200);
+            transition: all 0.2s;
+        }
+
+        .otp-header {
+            display: flex;
+            align-items: center;
+            gap: 0.6rem;
+            margin-bottom: 0.8rem;
+        }
+
+        .otp-header svg {
+            width: 22px;
+            height: 22px;
+            stroke: var(--primary);
+        }
+
+        .otp-timer {
+            font-size: 0.85rem;
+            color: var(--gray-600);
+            margin-top: 0.5rem;
+        }
+
+        .otp-input-group {
+            display: flex;
+            gap: 0.8rem;
+            flex-wrap: wrap;
+            align-items: flex-start;
+        }
+
+        .otp-input-group input {
+            flex: 2;
+            min-width: 160px;
+        }
+
+        .resend-link {
+            background: none;
+            border: none;
+            color: var(--primary);
+            font-weight: 500;
+            cursor: pointer;
+            font-size: 0.85rem;
+            text-decoration: underline;
+            margin-top: 0.4rem;
+        }
+
+        .resend-link:disabled {
+            color: var(--gray-400);
+            cursor: not-allowed;
+            text-decoration: none;
+        }
+
+        /* Flash messages */
+        .flash-messages {
+            position: fixed;
+            top: 90px;
+            right: 24px;
+            z-index: 1000;
+            display: flex;
+            flex-direction: column;
+            gap: 0.75rem;
+        }
+
+        .flash {
+            padding: 0.9rem 1.5rem;
+            border-radius: var(--radius-md);
+            background: white;
+            box-shadow: var(--shadow-lg);
+            border-left: 5px solid;
+            font-weight: 500;
+            animation: slideInRight 0.25s ease;
+        }
+
+        .flash.success {
+            border-left-color: var(--accent);
+            background: var(--accent-light);
+            color: #1a4c3a;
+        }
+
+        .flash.error {
+            border-left-color: #e53e3e;
+            background: #fee9e9;
+            color: #9b2c2c;
+        }
+
+        @keyframes slideInRight {
+            from { opacity: 0; transform: translateX(30px);}
+            to { opacity: 1; transform: translateX(0);}
+        }
+
+        hr {
+            margin: 1rem 0;
+            border: none;
+            border-top: 1px solid var(--gray-200);
+        }
+
+        @media (max-width: 640px) {
+            .navbar {
+                flex-direction: column;
+                align-items: flex-start;
+            }
+            .container {
+                padding: 0 1rem;
+            }
+            .card {
+                padding: 1.5rem;
+            }
+        }
+    </style>
+</head>
+<body>
+
+<nav class="navbar">
+    <div class="logo">Clinic Appointment</div>
+    <div class="nav-links">
+        <a href="/patient/dashboard">Dashboard</a>
+        <a href="/patient/book">Book Appointment</a>
+        <a href="/patient/my_appointments">My Appointments</a>
+        <a href="/logout">Logout</a>
+    </div>
+</nav>
+
+<div class="flash-messages">
+    {% with messages = get_flashed_messages(with_categories=true) %}
+        {% for category, message in messages %}
+            <div class="flash {{ category }}">{{ message }}</div>
+        {% endfor %}
+    {% endwith %}
+</div>
+
+<div class="container">
+    <div class="card">
+        <h2>📅 Book an Appointment</h2>
+        <div class="subhead">Secure booking with one-time verification</div>
+
+        <form method="POST" id="bookingForm">
+            <!-- Doctor selection -->
+            <div class="form-group">
+                <label for="doctor_id">Select Doctor</label>
+                <select id="doctor_id" name="doctor_id" required>
+                    <option value="">— Choose a doctor —</option>
+                    {% for doctor in doctors %}
+                    <option value="{{ doctor.id }}" data-specialization="{{ doctor.specialization }}" data-fee="{{ doctor.consultation_fee }}">
+                        Dr. {{ doctor.name }} • {{ doctor.specialization or 'General Physician' }} (₹{{ doctor.consultation_fee or 500 }})
+                    </option>
+                    {% endfor %}
+                </select>
+            </div>
+
+            <!-- Dynamic doctor info -->
+            <div id="doctorInfo" class="doctor-info hidden"></div>
+
+            <!-- Date picker -->
+            <div class="form-group">
+                <label for="date">Select Date</label>
+                <input type="date" id="date" name="date" required min="{{ today }}">
+            </div>
+
+            <!-- Time slots -->
+            <div class="form-group">
+                <label>Available Time Slots</label>
+                <div id="slotsContainer" class="slot-list">
+                    <div class="loading">Please select a doctor and date first</div>
+                </div>
+                <input type="hidden" id="slot_id" name="slot_id" required>
+            </div>
+
+            <!-- Symptoms & notes -->
+            <div class="form-group">
+                <label for="symptoms">Symptoms (Optional)</label>
+                <textarea id="symptoms" name="symptoms" placeholder="Describe your symptoms..."></textarea>
+            </div>
+
+            <div class="form-group">
+                <label for="notes">Additional Notes (Optional)</label>
+                <textarea id="notes" name="notes" placeholder="Any special requests or info..."></textarea>
+            </div>
+
+            <!-- OTP VERIFICATION SECTION (fully integrated) -->
+            <div id="otpSection" class="otp-section hidden">
+                <div class="otp-header">
+                    <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="1.8">
+                        <path stroke-linecap="round" stroke-linejoin="round" d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z" />
+                    </svg>
+                    <strong style="font-size: 1rem;">Verify your identity</strong>
+                </div>
+                <p style="font-size: 0.85rem; color: var(--gray-600); margin-bottom: 0.8rem;">
+                    We've sent a 6‑digit OTP to your registered email <span id="userEmailDisplay"></span>. 
+                    Please enter it below to confirm booking.
+                </p>
+                <div class="otp-input-group">
+                    <input type="text" id="otpCode" placeholder="6-digit code" maxlength="6" pattern="\d{6}" autocomplete="off">
+                    <button type="button" id="verifyOtpBtn" class="btn btn-primary" style="flex-shrink: 0;">Verify & Book</button>
+                </div>
+                <div class="otp-timer" id="otpTimerInfo"></div>
+                <button type="button" id="resendOtpBtn" class="resend-link" disabled>Resend OTP</button>
+            </div>
+
+            <!-- Hidden fields & final submit button (disabled until OTP verified) -->
+            <button type="submit" id="submitBtn" disabled style="width:100%;" class="btn btn-primary">Book Appointment</button>
+        </form>
+    </div>
+</div>
+
+
+
+<script>
+    // ---------- DOM elements ----------
+    const doctorSelect = document.getElementById('doctor_id');
+    const dateInput = document.getElementById('date');
+    const slotsContainer = document.getElementById('slotsContainer');
+    const slotIdInput = document.getElementById('slot_id');
+    const submitBtn = document.getElementById('submitBtn');
+    const doctorInfoDiv = document.getElementById('doctorInfo');
+    const otpSection = document.getElementById('otpSection');
+    const otpCodeInput = document.getElementById('otpCode');
+    const verifyOtpBtn = document.getElementById('verifyOtpBtn');
+    const resendOtpBtn = document.getElementById('resendOtpBtn');
+    const otpTimerSpan = document.getElementById('otpTimerInfo');
+    const userEmailSpan = document.getElementById('userEmailDisplay');
+
+    let currentSlotId = null;
+    let isOtpVerified = false;
+    let otpSentEmail = null;
+    let countdownInterval = null;
+    let resendCooldown = 0;
+    let currentDoctorId = null;
+    let currentDate = null;
+
+    const today = new Date().toISOString().split('T')[0];
+    dateInput.min = today;
+
+    let userEmail = null;
+
+    async function fetchUserEmail() {
+        try {
+            const res = await fetch('/api/current-user-email');
+            const data = await res.json();
+            if (data.email) {
+                userEmail = data.email;
+                if (userEmailSpan) userEmailSpan.innerText = userEmail;
+            }
+        } catch(e) { console.warn("Could not fetch email"); }
+    }
+    fetchUserEmail();
+
+    // ---------------- OTP COMMON FUNCTION ----------------
+    async function otpRequest(action, otpValue = null) {
+        try {
+            if (!userEmail) {
+                await fetchUserEmail();
+                if (!userEmail) {
+                    alert("Unable to retrieve your email. Please refresh.");
+                    return null;
+                }
+            }
+
+            const payload = { email: userEmail };
+            if (action === "verify") payload.otp = otpValue;
+
+            const url =
+                action === "generate"
+                    ? "/api/send-booking-otp"
+                    : "/api/verify-booking-otp";
+
+            const response = await fetch(url, {
+                method: "POST",
+                headers: { "Content-Type": "application/json" },
+                body: JSON.stringify(payload)
+            });
+
+            return await response.json();
+        } catch (err) {
+            console.error(err);
+            alert("OTP service error.");
+            return null;
+        }
+    }
+
+    function startResendCooldown(seconds) {
+        if (countdownInterval) clearInterval(countdownInterval);
+        resendCooldown = seconds;
+        updateTimerDisplay();
+        resendOtpBtn.disabled = true;
+        countdownInterval = setInterval(() => {
+            if (resendCooldown <= 0) {
+                clearInterval(countdownInterval);
+                resendOtpBtn.disabled = false;
+                otpTimerSpan.innerText = "You can request a new OTP now.";
+                countdownInterval = null;
+            } else {
+                resendCooldown--;
+                updateTimerDisplay();
+            }
+        }, 1000);
+    }
+
+    function updateTimerDisplay() {
+        if (resendCooldown > 0) {
+            const mins = Math.floor(resendCooldown / 60);
+            const secs = resendCooldown % 60;
+            otpTimerSpan.innerText = `Resend available in ${mins}:${secs.toString().padStart(2,'0')}`;
+        } else {
+            otpTimerSpan.innerText = "";
+        }
+    }
+
+    async function resendOtp() {
+        if (resendOtpBtn.disabled) return;
+
+        const result = await otpRequest("generate");
+
+        if (result && result.success) {
+            otpCodeInput.value = "";
+            startResendCooldown(120);
+            alert("New OTP sent to your registered email.");
+        }
+    }
+
+    // ----- SLOT LOADING -----
+    async function loadSlots() {
+        const doctorId = doctorSelect.value;
+        const date = dateInput.value;
+        if (!doctorId || !date) {
+            slotsContainer.innerHTML = '<div class="loading"> Please select a doctor and date</div>';
+            submitBtn.disabled = true;
+            slotIdInput.value = '';
+            otpSection.classList.add('hidden');
+            isOtpVerified = false;
+            return;
+        }
+        currentDoctorId = doctorId;
+        currentDate = date;
+
+        slotsContainer.innerHTML = '<div class="loading">Loading available slots...</div>';
+        submitBtn.disabled = true;
+        slotIdInput.value = '';
+        otpSection.classList.add('hidden');
+        isOtpVerified = false;
+
+        try {
+            const response = await fetch(`/patient/get_available_slots/${doctorId}/${date}`);
+            const slots = await response.json();
+            if (!slots || slots.length === 0) {
+                slotsContainer.innerHTML = '<div class="loading"> No available slots on this date. Please choose another date.</div>';
+                return;
+            }
+            slotsContainer.innerHTML = '';
+            slots.forEach(slot => {
+                const slotDiv = document.createElement('div');
+                slotDiv.className = 'slot-item';
+                const availableCount = slot.max_patients - slot.booked_count;
+                slotDiv.innerHTML = `
+                    <div class="slot-time"> ${slot.start_time} — ${slot.end_time}</div>
+                    <div class="slot-info">${slot.duration_minutes} min visit | ${availableCount} spot(s) left</div>
+                `;
+                slotDiv.onclick = () => selectSlot(slot.id, slotDiv);
+                slotsContainer.appendChild(slotDiv);
+            });
+        } catch (err) {
+            console.error(err);
+            slotsContainer.innerHTML = '<div class="loading">Error loading slots. Refresh or try again.</div>';
+        }
+    }
+
+    function selectSlot(slotId, element) {
+        document.querySelectorAll('.slot-item').forEach(item => item.classList.remove('selected'));
+        element.classList.add('selected');
+        slotIdInput.value = slotId;
+        currentSlotId = slotId;
+
+        isOtpVerified = false;
+        submitBtn.disabled = true;
+        otpSection.classList.add('hidden');
+        otpCodeInput.value = "";
+        otpCodeInput.disabled = false;
+        verifyOtpBtn.disabled = false;
+        if (countdownInterval) clearInterval(countdownInterval);
+        resendOtpBtn.disabled = true;
+
+        if (slotId && doctorSelect.value && dateInput.value) {
+            otpSection.classList.remove('hidden');
+
+            otpRequest("generate").then(data => {
+                if (data && data.success) {
+                    startResendCooldown(120);
+                } else {
+                    alert("Could not send OTP. Please try again.");
+                }
+            });
+        }
+    }
+
+    doctorSelect.addEventListener('change', function() {
+        const selectedOption = this.options[this.selectedIndex];
+        if (this.value) {
+            const specialization = selectedOption.dataset.specialization || 'General Physician';
+            const fee = selectedOption.dataset.fee || 500;
+            doctorInfoDiv.innerHTML = `
+                <div class="doctor-name">Dr. ${selectedOption.text.split('•')[0].replace('Dr.', '').trim()}</div>
+                <div class="doctor-specialization"> ${specialization}</div>
+                <div style="margin-top: 0.3rem;"> Consultation: ₹${fee}</div>
+            `;
+            doctorInfoDiv.classList.remove('hidden');
+        } else {
+            doctorInfoDiv.classList.add('hidden');
+        }
+
+        if (this.value && dateInput.value) {
+            loadSlots();
+        } else {
+            slotsContainer.innerHTML = '<div class="loading">Select doctor & date to view slots</div>';
+            otpSection.classList.add('hidden');
+            submitBtn.disabled = true;
+        }
+        isOtpVerified = false;
+        submitBtn.disabled = true;
+        otpSection.classList.add('hidden');
+    });
+
+    dateInput.addEventListener('change', function() {
+        if (doctorSelect.value && this.value) {
+            loadSlots();
+        } else {
+            slotsContainer.innerHTML = '<div class="loading">Select doctor & date first</div>';
+            otpSection.classList.add('hidden');
+            submitBtn.disabled = true;
+        }
+        isOtpVerified = false;
+        submitBtn.disabled = true;
+    });
+
+    verifyOtpBtn.addEventListener('click', async (e) => {
+        e.preventDefault();
+        if (!currentSlotId) {
+            alert("Please select a time slot first.");
+            return;
+        }
+
+        const otp = otpCodeInput.value.trim();
+
+        if (!otp || !/^\d{6}$/.test(otp)) {
+            alert("Please enter a valid 6-digit OTP.");
+            return;
+        }
+
+        const result = await otpRequest("verify", otp);
+
+        if (result && result.success) {
+            isOtpVerified = true;
+            submitBtn.disabled = false;
+            otpCodeInput.disabled = true;
+            verifyOtpBtn.disabled = true;
+            resendOtpBtn.disabled = true;
+            if (countdownInterval) clearInterval(countdownInterval);
+            otpTimerSpan.innerHTML = "OTP verified! You can now book.";
+        } else {
+            alert("Invalid OTP or expired. Please try again or resend.");
+        }
+    });
+
+    resendOtpBtn.addEventListener('click', async () => {
+        if (resendOtpBtn.disabled) return;
+        await resendOtp();
+    });
+
+    const bookingForm = document.getElementById('bookingForm');
+    bookingForm.addEventListener('submit', async function(e) {
+        if (!currentSlotId) {
+            e.preventDefault();
+            alert("Please select a time slot.");
+            return;
+        }
+        if (!isOtpVerified) {
+            e.preventDefault();
+            alert("Please verify your OTP before booking.");
+            return;
+        }
+        slotIdInput.value = currentSlotId;
+    });
+
+    setTimeout(() => {
+        document.querySelectorAll('.flash').forEach(f => {
+            f.style.opacity = '0';
+            setTimeout(() => f.remove(), 300);
+        });
+    }, 4000);
+</script>
+
+
+</body>
+</html>

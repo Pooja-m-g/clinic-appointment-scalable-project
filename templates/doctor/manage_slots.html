@@ -1,0 +1,350 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Manage Slots - Doctor Appointment System</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+        
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: #f4f4f4;
+        }
+        
+        .navbar {
+            background: white;
+            padding: 1rem 2rem;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+        
+        .logo {
+            font-size: 1.5rem;
+            font-weight: bold;
+            color: #667eea;
+        }
+        
+        .nav-links a {
+            margin-left: 1.5rem;
+            text-decoration: none;
+            color: #333;
+            transition: color 0.3s;
+        }
+        
+        .nav-links a:hover {
+            color: #667eea;
+        }
+        
+        .container {
+            max-width: 1200px;
+            margin: 2rem auto;
+            padding: 0 2rem;
+        }
+        
+        .card {
+            background: white;
+            border-radius: 10px;
+            padding: 2rem;
+            margin-bottom: 2rem;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+        }
+        
+        .header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 1.5rem;
+        }
+        
+        h2 {
+            color: #333;
+        }
+        
+        .btn {
+            padding: 10px 20px;
+            border: none;
+            border-radius: 5px;
+            cursor: pointer;
+            text-decoration: none;
+            display: inline-block;
+            transition: background 0.3s;
+        }
+        
+        .btn-primary {
+            background: #667eea;
+            color: white;
+        }
+        
+        .btn-primary:hover {
+            background: #5a67d8;
+        }
+        
+        .btn-danger {
+            background: #dc3545;
+            color: white;
+        }
+        
+        .btn-danger:hover {
+            background: #c82333;
+        }
+        
+        .btn-warning {
+            background: #ffc107;
+            color: #333;
+        }
+        
+        .btn-warning:hover {
+            background: #e0a800;
+        }
+        
+        .btn-sm {
+            padding: 5px 12px;
+            font-size: 0.85rem;
+        }
+        
+        .slots-grid {
+            display: grid;
+            gap: 1rem;
+        }
+        
+        .slot-card {
+            border: 1px solid #e0e0e0;
+            border-radius: 8px;
+            padding: 1rem;
+            transition: box-shadow 0.3s;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+        
+        .slot-card:hover {
+            box-shadow: 0 2px 8px rgba(0,0,0,0.1);
+        }
+        
+        .slot-info {
+            flex: 1;
+        }
+        
+        .slot-date {
+            font-weight: bold;
+            color: #333;
+            font-size: 1.1rem;
+            margin-bottom: 0.5rem;
+        }
+        
+        .slot-time {
+            color: #667eea;
+            margin-bottom: 0.5rem;
+        }
+        
+        .slot-stats {
+            color: #666;
+            font-size: 0.9rem;
+        }
+        
+        .slot-actions {
+            display: flex;
+            gap: 0.5rem;
+        }
+        
+        .status {
+            display: inline-block;
+            padding: 2px 8px;
+            border-radius: 20px;
+            font-size: 0.8rem;
+            font-weight: 500;
+            margin-left: 0.5rem;
+        }
+        
+        .status-available {
+            background: #d4edda;
+            color: #155724;
+        }
+        
+        .status-booked {
+            background: #f8d7da;
+            color: #721c24;
+        }
+        
+        .status-cancelled {
+            background: #f8d7da;
+            color: #721c24;
+        }
+        
+        .empty-state {
+            text-align: center;
+            padding: 3rem;
+            color: #999;
+        }
+        
+        .flash-messages {
+            position: fixed;
+            top: 20px;
+            right: 20px;
+            z-index: 1000;
+        }
+        
+        .flash {
+            padding: 10px 20px;
+            margin-bottom: 10px;
+            border-radius: 5px;
+            animation: slideIn 0.3s ease-out;
+        }
+        
+        .flash.success {
+            background: #d4edda;
+            color: #155724;
+            border: 1px solid #c3e6cb;
+        }
+        
+        .flash.error {
+            background: #f8d7da;
+            color: #721c24;
+            border: 1px solid #f5c6cb;
+        }
+        
+        @keyframes slideIn {
+            from {
+                transform: translateX(100%);
+                opacity: 0;
+            }
+            to {
+                transform: translateX(0);
+                opacity: 1;
+            }
+        }
+        
+        .filters {
+            margin-bottom: 1.5rem;
+            display: flex;
+            gap: 1rem;
+        }
+        
+        .filter-input {
+            padding: 8px;
+            border: 1px solid #ddd;
+            border-radius: 5px;
+        }
+    </style>
+</head>
+<body>
+    <nav class="navbar">
+        <div class="logo">Clinic Appointment</div>
+        <div class="nav-links">
+            <a href="/doctor/dashboard">Dashboard</a>
+            <a href="/doctor/manage_slots">Manage Slots</a>
+            <a href="/doctor/appointments">Appointments</a>
+            <a href="/doctor/profile">Profile</a>
+            <a href="/logout">Logout</a>
+        </div>
+    </nav>
+    
+    <div class="flash-messages">
+        {% with messages = get_flashed_messages(with_categories=true) %}
+            {% if messages %}
+                {% for category, message in messages %}
+                    <div class="flash {{ category }}">{{ message }}</div>
+                {% endfor %}
+            {% endif %}
+        {% endwith %}
+    </div>
+    
+    <div class="container">
+        <div class="card">
+            <div class="header">
+                <h2>Manage Time Slots</h2>
+                <a href="/doctor/create_slot" class="btn btn-primary">+ Create New Slot</a>
+            </div>
+            
+            <div class="filters">
+                <input type="date" id="dateFilter" class="filter-input" placeholder="Filter by date">
+                <select id="statusFilter" class="filter-input">
+                    <option value="">All Status</option>
+                    <option value="available">Available</option>
+                    <option value="booked">Booked</option>
+                    <option value="cancelled">Cancelled</option>
+                </select>
+            </div>
+            
+            <div id="slotsList" class="slots-grid">
+                {% if slots %}
+                    {% for slot in slots %}
+                    <div class="slot-card" data-date="{{ slot.slot_date }}" data-status="{{ slot.status }}">
+                        <div class="slot-info">
+                            <div class="slot-date">
+                                {{ slot.slot_date }}
+                                <span class="status status-{{ slot.status }}">{{ slot.status|upper }}</span>
+                            </div>
+                            <div class="slot-time">{{ slot.start_time }} - {{ slot.end_time }}</div>
+                            <div class="slot-stats">
+                                Duration: {{ slot.duration_minutes }} mins | 
+                                Booked: {{ slot.booked_count }} / {{ slot.max_patients }}
+                            </div>
+                        </div>
+                        <div class="slot-actions">
+                            {% if slot.booked_count == 0 and slot.status == 'available' %}
+                                <a href="/doctor/edit_slot/{{ slot.id }}" class="btn btn-warning btn-sm">Edit</a>
+                                <a href="/doctor/delete_slot/{{ slot.id }}" class="btn btn-danger btn-sm" onclick="return confirm('Are you sure you want to delete this slot?')">Delete</a>
+                            {% elif slot.booked_count > 0 %}
+                                <button class="btn btn-sm" disabled style="background: #ccc; cursor: not-allowed;">Cannot Edit (Has Bookings)</button>
+                            {% endif %}
+                        </div>
+                    </div>
+                    {% endfor %}
+                {% else %}
+                    <div class="empty-state">
+                        <p>No slots created yet</p>
+                        <a href="/doctor/create_slot" class="btn btn-primary" style="margin-top: 1rem;">Create Your First Slot</a>
+                    </div>
+                {% endif %}
+            </div>
+        </div>
+    </div>
+    
+    <script>
+        const dateFilter = document.getElementById('dateFilter');
+        const statusFilter = document.getElementById('statusFilter');
+        const slots = document.querySelectorAll('.slot-card');
+        
+        function filterSlots() {
+            const selectedDate = dateFilter.value;
+            const selectedStatus = statusFilter.value;
+            
+            slots.forEach(slot => {
+                const slotDate = slot.dataset.date;
+                const slotStatus = slot.dataset.status;
+                
+                let show = true;
+                
+                if (selectedDate && slotDate !== selectedDate) {
+                    show = false;
+                }
+                
+                if (selectedStatus && slotStatus !== selectedStatus) {
+                    show = false;
+                }
+                
+                slot.style.display = show ? 'flex' : 'none';
+            });
+        }
+        
+        dateFilter.addEventListener('change', filterSlots);
+        statusFilter.addEventListener('change', filterSlots);
+        
+        setTimeout(() => {
+            const flashes = document.querySelectorAll('.flash');
+            flashes.forEach(flash => {
+                flash.style.opacity = '0';
+                setTimeout(() => flash.remove(), 300);
+            });
+        }, 3000);
+    </script>
+</body>
+</html>

@@ -1,0 +1,360 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Appointment Details - Doctor Appointment System</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+        
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: #f4f4f4;
+        }
+        
+        .navbar {
+            background: white;
+            padding: 1rem 2rem;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+        
+        .logo {
+            font-size: 1.5rem;
+            font-weight: bold;
+            color: #667eea;
+        }
+        
+        .nav-links a {
+            margin-left: 1.5rem;
+            text-decoration: none;
+            color: #333;
+            transition: color 0.3s;
+        }
+        
+        .nav-links a:hover {
+            color: #667eea;
+        }
+        
+        .container {
+            max-width: 900px;
+            margin: 2rem auto;
+            padding: 0 2rem;
+        }
+        
+        .card {
+            background: white;
+            border-radius: 10px;
+            padding: 2rem;
+            margin-bottom: 2rem;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+        }
+        
+        h2 {
+            color: #333;
+            margin-bottom: 1.5rem;
+        }
+        
+        .info-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+            gap: 1.5rem;
+            margin-bottom: 2rem;
+        }
+        
+        .info-section {
+            background: #f8f9fa;
+            padding: 1rem;
+            border-radius: 8px;
+        }
+        
+        .info-section h3 {
+            color: #667eea;
+            margin-bottom: 1rem;
+            font-size: 1.1rem;
+        }
+        
+        .info-row {
+            margin-bottom: 0.75rem;
+        }
+        
+        .info-label {
+            font-weight: 500;
+            color: #666;
+            margin-bottom: 0.25rem;
+        }
+        
+        .info-value {
+            color: #333;
+        }
+        
+        .status {
+            display: inline-block;
+            padding: 4px 12px;
+            border-radius: 20px;
+            font-size: 0.85rem;
+            font-weight: 500;
+        }
+        
+        .status-pending {
+            background: #fff3cd;
+            color: #856404;
+        }
+        
+        .status-confirmed {
+            background: #d4edda;
+            color: #155724;
+        }
+        
+        .status-completed {
+            background: #cce5ff;
+            color: #004085;
+        }
+        
+        .status-cancelled {
+            background: #f8d7da;
+            color: #721c24;
+        }
+        
+        .form-group {
+            margin-bottom: 1.5rem;
+        }
+        
+        label {
+            display: block;
+            margin-bottom: 0.5rem;
+            color: #666;
+            font-weight: 500;
+        }
+        
+        select, textarea, input {
+            width: 100%;
+            padding: 10px;
+            border: 1px solid #ddd;
+            border-radius: 5px;
+            font-size: 16px;
+        }
+        
+        textarea {
+            resize: vertical;
+            min-height: 100px;
+        }
+        
+        button {
+            padding: 10px 20px;
+            background: #667eea;
+            color: white;
+            border: none;
+            border-radius: 5px;
+            cursor: pointer;
+            font-size: 16px;
+            transition: background 0.3s;
+        }
+        
+        button:hover {
+            background: #5a67d8;
+        }
+        
+        .btn-group {
+            display: flex;
+            gap: 1rem;
+            margin-top: 1rem;
+        }
+        
+        .btn-danger {
+            background: #dc3545;
+        }
+        
+        .btn-danger:hover {
+            background: #c82333;
+        }
+        
+        .btn-success {
+            background: #28a745;
+        }
+        
+        .btn-success:hover {
+            background: #218838;
+        }
+        
+        .back-link {
+            margin-top: 1rem;
+            text-align: center;
+        }
+        
+        .back-link a {
+            color: #667eea;
+            text-decoration: none;
+        }
+        
+        .flash-messages {
+            position: fixed;
+            top: 20px;
+            right: 20px;
+            z-index: 1000;
+        }
+        
+        .flash {
+            padding: 10px 20px;
+            margin-bottom: 10px;
+            border-radius: 5px;
+            animation: slideIn 0.3s ease-out;
+        }
+        
+        .flash.success {
+            background: #d4edda;
+            color: #155724;
+            border: 1px solid #c3e6cb;
+        }
+        
+        .flash.error {
+            background: #f8d7da;
+            color: #721c24;
+            border: 1px solid #f5c6cb;
+        }
+        
+        @keyframes slideIn {
+            from {
+                transform: translateX(100%);
+                opacity: 0;
+            }
+            to {
+                transform: translateX(0);
+                opacity: 1;
+            }
+        }
+    </style>
+</head>
+<body>
+    <nav class="navbar">
+        <div class="logo">Clinic Appointment</div>
+        <div class="nav-links">
+            <a href="/doctor/dashboard">Dashboard</a>
+            <a href="/doctor/manage_slots">Manage Slots</a>
+            <a href="/doctor/appointments">Appointments</a>
+            <a href="/doctor/profile">Profile</a>
+            <a href="/logout">Logout</a>
+        </div>
+    </nav>
+    
+    <div class="flash-messages">
+        {% with messages = get_flashed_messages(with_categories=true) %}
+            {% if messages %}
+                {% for category, message in messages %}
+                    <div class="flash {{ category }}">{{ message }}</div>
+                {% endfor %}
+            {% endif %}
+        {% endwith %}
+    </div>
+    
+    <div class="container">
+        <div class="card">
+            <h2>Appointment Details</h2>
+            
+            <div class="info-grid">
+                <div class="info-section">
+                    <h3>Patient Information</h3>
+                    <div class="info-row">
+                        <div class="info-label">Name</div>
+                        <div class="info-value">{{ appointment.patient_name }}</div>
+                    </div>
+                    <div class="info-row">
+                        <div class="info-label">Email</div>
+                        <div class="info-value">{{ appointment.patient_email }}</div>
+                    </div>
+                    <div class="info-row">
+                        <div class="info-label">Phone</div>
+                        <div class="info-value">{{ appointment.patient_phone }}</div>
+                    </div>
+                </div>
+                
+                <div class="info-section">
+                    <h3>Appointment Information</h3>
+                    <div class="info-row">
+                        <div class="info-label">Date & Time</div>
+                        <div class="info-value">{{ appointment.appointment_date }} at {{ appointment.appointment_time }}</div>
+                    </div>
+                    <div class="info-row">
+                        <div class="info-label">Status</div>
+                        <div class="info-value">
+                            <span class="status status-{{ appointment.status }}">{{ appointment.status|upper }}</span>
+                        </div>
+                    </div>
+                    <div class="info-row">
+                        <div class="info-label">Symptoms</div>
+                        <div class="info-value">{{ appointment.symptoms or 'Not provided' }}</div>
+                    </div>
+                    <div class="info-row">
+                        <div class="info-label">Notes</div>
+                        <div class="info-value">{{ appointment.notes or 'Not provided' }}</div>
+                    </div>
+                </div>
+            </div>
+        </div>
+        
+        <div class="card">
+            <h3>Update Appointment</h3>
+            <form method="POST" action="/doctor/update_appointment/{{ appointment.id }}">
+                <div class="form-group">
+                    <label for="status">Update Status</label>
+                    <select id="status" name="status">
+                        <option value="pending" {% if appointment.status == 'pending' %}selected{% endif %}>Pending</option>
+                        <option value="confirmed" {% if appointment.status == 'confirmed' %}selected{% endif %}>Confirmed</option>
+                        <option value="completed" {% if appointment.status == 'completed' %}selected{% endif %}>Completed</option>
+                        <option value="cancelled" {% if appointment.status == 'cancelled' %}selected{% endif %}>Cancelled</option>
+                    </select>
+                </div>
+                
+                <div class="form-group">
+                    <label for="diagnosis">Diagnosis</label>
+                    <textarea id="diagnosis" name="diagnosis" placeholder="Enter diagnosis...">{{ appointment.diagnosis or '' }}</textarea>
+                </div>
+                
+                <div class="form-group">
+                    <label for="prescription">Prescription</label>
+                    <textarea id="prescription" name="prescription" placeholder="Enter prescription...">{{ appointment.prescription or '' }}</textarea>
+                </div>
+                
+                <div class="form-group">
+                    <label for="follow_up_date">Follow-up Date</label>
+                    <input type="date" id="follow_up_date" name="follow_up_date" value="{{ appointment.follow_up_date or '' }}">
+                </div>
+                
+                <div class="btn-group">
+                    <button type="submit" class="btn-success">Save Changes</button>
+                    {% if appointment.status == 'confirmed' %}
+                    <button type="submit" name="status" value="completed" class="btn-success">Mark as Completed</button>
+                    {% endif %}
+                </div>
+            </form>
+        </div>
+        
+        <div class="back-link">
+            <a href="/doctor/appointments">← Back to Appointments</a>
+        </div>
+    </div>
+    
+    <script>
+        // Set minimum date for follow-up to today
+        const today = new Date().toISOString().split('T')[0];
+        const followUpDate = document.getElementById('follow_up_date');
+        if (followUpDate) {
+            followUpDate.min = today;
+        }
+        
+        setTimeout(() => {
+            const flashes = document.querySelectorAll('.flash');
+            flashes.forEach(flash => {
+                flash.style.opacity = '0';
+                setTimeout(() => flash.remove(), 300);
+            });
+        }, 3000);
+    </script>
+</body>
+</html>
