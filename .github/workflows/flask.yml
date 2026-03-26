@@ -59,7 +59,7 @@ jobs:
 
   deploy_on_eb:
     runs-on: ubuntu-latest
-    needs: build_stage
+    needs: build_flask
   
     steps:
       - name: Download Deployment Package
