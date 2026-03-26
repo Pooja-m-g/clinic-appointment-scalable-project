@@ -96,6 +96,47 @@ def patient_signup():
     return render_template('patient/signup.html')
 
 
+# @app.route('/patient/login', methods=['GET', 'POST'])
+# def patient_login():
+#     if request.method == 'POST':
+#         email = request.form['email']
+#         password = request.form['password']
+
+#         try:
+#             response = requests.post(
+#                 f"{AUTH_API}/auth/login",
+#                 headers=HEADERS,
+#                 json={
+#                     "email": email,
+#                     "password": password
+#                 },
+#                 timeout=10
+#             )
+
+#             data = response.json()
+
+#             if response.status_code == 200:
+#                 session['user_id'] = data['id']
+#                 session['user_email'] = data['email']
+#                 session['user_name'] = data['name']
+#                 session['user_type'] = 'patient'
+#                 session['token'] = data['token']
+#                 session.permanent = True
+
+#                 flash('Login successful!', 'success')
+#                 return redirect(url_for('patient_dashboard'))
+
+#             else:
+#                 flash(data.get("message", "Invalid credentials"), 'error')
+
+#         except Exception as e:
+#             print("Login API error:", e)
+#             flash('Authentication service unavailable', 'error')
+
+#     return render_template('patient/login.html')
+
+
+
 @app.route('/patient/login', methods=['GET', 'POST'])
 def patient_login():
     if request.method == 'POST':
@@ -116,9 +157,17 @@ def patient_login():
             data = response.json()
 
             if response.status_code == 200:
-                session['user_id'] = data['id']
-                session['user_email'] = data['email']
-                session['user_name'] = data['name']
+                # Get user from your RDS database using email
+                user = User.get_user_by_email(db, data['email'])
+
+                if not user:
+                    flash('User not found in database', 'error')
+                    return redirect(url_for('patient_login'))
+
+                # Store correct database ID
+                session['user_id'] = user['id']
+                session['user_email'] = user['email']
+                session['user_name'] = user['name']
                 session['user_type'] = 'patient'
                 session['token'] = data['token']
                 session.permanent = True
@@ -134,6 +183,8 @@ def patient_login():
             flash('Authentication service unavailable', 'error')
 
     return render_template('patient/login.html')
+
+
 
 
 @app.route('/doctor/login', methods=['GET', 'POST'])
@@ -176,34 +227,112 @@ def patient_dashboard():
                          past=past[:5],
                          total=len(appointments))
 
+# @app.route('/patient/book', methods=['GET', 'POST'])
+# @login_required
+# def book_appointment():
+#     if session['user_type'] != 'patient':
+#         return redirect(url_for('doctor_dashboard'))
+    
+#     if request.method == 'POST':
+#         doctor_id = request.form['doctor_id']
+#         slot_id = request.form['slot_id']
+#         symptoms = request.form.get('symptoms', '')
+#         notes = request.form.get('notes', '')
+        
+#         slot = DoctorSlot.get_slot_by_id(db, slot_id)
+        
+#         print("SESSION USER ID:", session['user_id'])
+#         user = User.get_user_by_id(db, session['user_id'])
+#         print("USER FOUND:", user)
+        
+#         if slot and slot['status'] == 'available' and slot['booked_count'] < slot['max_patients']:
+#             result = Appointment.create_appointment(
+#                 db, session['user_id'], doctor_id, slot_id,
+#                 slot['slot_date'], slot['start_time'], symptoms, notes
+#             )
+#             if result:
+#                 flash('Appointment booked successfully!', 'success')
+#                 return redirect(url_for('patient_dashboard'))
+#             else:
+#                 flash('Failed to book appointment', 'error')
+#         else:
+#             flash('Slot no longer available', 'error')
+    
+#     doctors = User.get_doctors(db)
+#     return render_template('patient/book_appointment.html', doctors=doctors)
+
+
+
+
+
+
+
 @app.route('/patient/book', methods=['GET', 'POST'])
 @login_required
 def book_appointment():
-    if session['user_type'] != 'patient':
+    if session.get('user_type') != 'patient':
         return redirect(url_for('doctor_dashboard'))
-    
+
+    # Verify user exists in DB
+    user = User.get_user_by_id(db, session.get('user_id'))
+
+    if not user:
+        # Try recovering using email (useful when auth service returns UUID)
+        if session.get('user_email'):
+            user = User.get_user_by_email(db, session.get('user_email'))
+            if user:
+                session['user_id'] = user['id']
+            else:
+                flash('User not found. Please login again.', 'error')
+                return redirect(url_for('patient_login'))
+        else:
+            flash('Session expired. Please login again.', 'error')
+            return redirect(url_for('patient_login'))
+
     if request.method == 'POST':
         doctor_id = request.form['doctor_id']
         slot_id = request.form['slot_id']
         symptoms = request.form.get('symptoms', '')
         notes = request.form.get('notes', '')
-        
+
         slot = DoctorSlot.get_slot_by_id(db, slot_id)
-        if slot and slot['status'] == 'available' and slot['booked_count'] < slot['max_patients']:
-            result = Appointment.create_appointment(
-                db, session['user_id'], doctor_id, slot_id,
-                slot['slot_date'], slot['start_time'], symptoms, notes
-            )
-            if result:
-                flash('Appointment booked successfully!', 'success')
-                return redirect(url_for('patient_dashboard'))
-            else:
-                flash('Failed to book appointment', 'error')
+
+        if not slot:
+            flash('Invalid slot selected', 'error')
+            return redirect(url_for('book_appointment'))
+
+        if slot['status'] != 'available':
+            flash('Slot is not available', 'error')
+            return redirect(url_for('book_appointment'))
+
+        if slot['booked_count'] >= slot['max_patients']:
+            flash('Slot is already full', 'error')
+            return redirect(url_for('book_appointment'))
+
+        result = Appointment.create_appointment(
+            db,
+            user['id'],  # Always use verified DB ID
+            doctor_id,
+            slot_id,
+            slot['slot_date'],
+            slot['start_time'],
+            symptoms,
+            notes
+        )
+
+        if result:
+            flash('Appointment booked successfully!', 'success')
+            return redirect(url_for('patient_dashboard'))
         else:
-            flash('Slot no longer available', 'error')
-    
+            flash('Failed to book appointment', 'error')
+
     doctors = User.get_doctors(db)
     return render_template('patient/book_appointment.html', doctors=doctors)
+
+
+
+
+
 
 # @app.route('/patient/get_available_slots/<int:doctor_id>/<string:date>')
 # @login_required
