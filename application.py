@@ -2,7 +2,6 @@ from flask import Flask, render_template, request, redirect, url_for, session, j
 from datetime import datetime, timedelta
 import random
 from functools import wraps
-
 from models import Database, User, DoctorSlot, Appointment, OTP, Review
 
 application = Flask(__name__)
@@ -34,16 +33,12 @@ def doctor_required(f):
         return f(*args, **kwargs)
     return decorated_function
 
-# Helper functions
 
 
-# Public Routes
 @app.route('/')
 def index():
     doctors = User.get_doctors(db)
     return render_template('index.html', doctors=doctors)
-
-
 
 
 import requests
@@ -99,10 +94,6 @@ def patient_signup():
             flash('Authentication service error', 'error')
 
     return render_template('patient/signup.html')
-
-
-
-
 
 
 @app.route('/patient/login', methods=['GET', 'POST'])
