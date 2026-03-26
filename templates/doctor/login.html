@@ -389,7 +389,6 @@
     
     <div class="container">
         <div class="header">
-            <div class="doctor-icon">👨‍⚕️</div>
             <h2>Doctor Login</h2>
             <p>Access your professional dashboard</p>
         </div>
@@ -407,17 +406,15 @@
             
             <form method="POST">
                 <div class="form-group">
-                    <label for="email">📧 Email Address</label>
+                    <label for="email">Email Address</label>
                     <div class="input-group">
-                        <span class="input-icon">✉️</span>
                         <input type="email" id="email" name="email" placeholder="doctor@example.com" required autofocus>
                     </div>
                 </div>
                 
                 <div class="form-group">
-                    <label for="password">🔒 Password</label>
+                    <label for="password">Password</label>
                     <div class="input-group">
-                        <span class="input-icon">🔑</span>
                         <input type="password" id="password" name="password" placeholder="Enter your password" required>
                         <span class="password-toggle" onclick="togglePassword()">👁️</span>
                     </div>
@@ -427,11 +424,11 @@
             </form>
             
             <div class="demo-credentials">
-                <div class="demo-title">🔐 Demo Credentials</div>
+                <div class="demo-title">Demo Credentials</div>
                 <p><strong>Email:</strong> doctor@example.com</p>
-                <p><strong>Password:</strong> password</p>
+                <p><strong>Password:</strong> doctor@123</p>
                 <p style="font-size: 12px; color: #999; margin-top: 8px;">
-                    ℹ️ Use these credentials to test the doctor panel
+                    Use these credentials to test the doctor panel
                 </p>
             </div>
             
@@ -453,10 +450,10 @@
             
             if (passwordInput.type === 'password') {
                 passwordInput.type = 'text';
-                toggleIcon.textContent = '🙈';
+                toggleIcon.textContent = '';
             } else {
                 passwordInput.type = 'password';
-                toggleIcon.textContent = '👁️';
+                toggleIcon.textContent = '️';
             }
         }
         

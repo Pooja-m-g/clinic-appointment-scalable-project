@@ -146,51 +146,6 @@ def patient_login():
 
 
 
-# @app.route('/patient/signup', methods=['GET', 'POST'])
-# def patient_signup():
-#     if request.method == 'POST':
-#         email = request.form['email']
-#         password = request.form['password']
-#         name = request.form['name']
-#         phone = request.form['phone']
-        
-#         existing = User.get_user_by_email(db, email)
-#         if existing:
-#             flash('Email already registered', 'error')
-#             return redirect(url_for('patient_signup'))
-        
-#         result = User.create_user(db, email, password, name, phone, 'patient')
-#         if result:
-#             flash('Registration successful! Please login.', 'success')
-#             return redirect(url_for('patient_login'))
-#         else:
-#             flash('Registration failed. Please try again.', 'error')
-    
-#     return render_template('patient/signup.html')
-
-# @app.route('/patient/login', methods=['GET', 'POST'])
-# def patient_login():
-#     if request.method == 'POST':
-#         email = request.form['email']
-#         password = request.form['password']
-        
-#         user = User.verify_user(db, email, password)
-#         if user and user['user_type'] == 'patient':
-#             session['user_id'] = user['id']
-#             session['user_email'] = user['email']
-#             session['user_name'] = user['name']
-#             session['user_type'] = 'patient'
-#             session.permanent = True
-#             flash('Login successful!', 'success')
-#             return redirect(url_for('patient_dashboard'))
-#         else:
-#             flash('Invalid credentials', 'error')
-    
-#     return render_template('patient/login.html')
-
-
-
-
 @app.route('/doctor/login', methods=['GET', 'POST'])
 def doctor_login():
     if request.method == 'POST':
