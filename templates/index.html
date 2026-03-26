@@ -210,23 +210,6 @@
             <a href="/doctor/login" class="btn btn-outline">Doctor Login</a>
         </div>
         
-        <div class="doctors-section">
-            <h2>Our Top Doctors</h2>
-            <div class="doctors-grid">
-                {% for doctor in doctors %}
-                <div class="doctor-card">
-                    <div class="doctor-name">Dr. {{ doctor.name }}</div>
-                    <div class="doctor-specialization">{{ doctor.specialization or 'General Physician' }}</div>
-                    <div class="doctor-rating">
-                        ★★★★☆ (4.5)
-                    </div>
-                    <div class="doctor-experience">Experience: {{ doctor.experience_years or 0 }} years</div>
-                    <div class="doctor-fee">Fee: ₹{{ doctor.consultation_fee or 500 }}</div>
-                    <a href="/patient/login" class="btn btn-primary" style="margin-top: 1rem; display: inline-block;">Book Now</a>
-                </div>
-                {% endfor %}
-            </div>
-        </div>
     </div>
     
     <script>

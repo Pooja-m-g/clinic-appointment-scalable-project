@@ -136,7 +136,6 @@ def patient_login():
     return render_template('patient/login.html')
 
 
-
 @app.route('/doctor/login', methods=['GET', 'POST'])
 def doctor_login():
     if request.method == 'POST':
@@ -153,7 +152,6 @@ def doctor_login():
             return redirect(url_for('doctor_dashboard'))
         else:
             flash('Invalid credentials', 'error')
-    
     return render_template('doctor/login.html')
 
 @app.route('/logout')
