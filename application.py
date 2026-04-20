@@ -43,7 +43,8 @@ def index():
 
 import requests
 
-AUTH_API = "https://w9j9sskln0.execute-api.us-east-1.amazonaws.com/prod"
+# AUTH_API = "https://w9j9sskln0.execute-api.us-east-1.amazonaws.com/prod"
+AUTH_API = 'https://jgv6uld9qi.execute-api.us-east-1.amazonaws.com/prod'
 PROJECT_DOMAIN = "ClinicAppointment"
 
 HEADERS = {
